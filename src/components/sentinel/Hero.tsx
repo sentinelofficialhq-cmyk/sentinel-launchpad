@@ -23,7 +23,7 @@ export const Hero = () => {
           <h1 className="text-balance text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             Smarter Sports Insights.
             <br />
-            <span className="text-gradient-green">Built for Release Day.</span>
+            <span className="text-gradient-green">Gain Your Edge.</span>
           </h1>
 
           <p className="mx-auto mt-5 max-w-xl text-balance text-base leading-relaxed text-muted-foreground sm:mt-6 sm:text-lg">
