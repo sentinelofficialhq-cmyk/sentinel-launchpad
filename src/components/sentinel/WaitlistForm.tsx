@@ -5,7 +5,6 @@ import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
 import {
   submitWaitlist,
   waitlistSchema,
@@ -21,8 +20,8 @@ export const WaitlistForm = ({
   variant = "hero",
   formId = "waitlist",
 }: WaitlistFormProps) => {
-  const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -32,7 +31,7 @@ export const WaitlistForm = ({
     formState: { errors, isSubmitting },
   } = useForm<WaitlistPayload>({
     resolver: zodResolver(waitlistSchema),
-    defaultValues: { email: "", phone: "", smsConsent: false },
+    defaultValues: { email: "", phone: "", website: "", smsConsent: false },
     mode: "onBlur",
   });
 
@@ -41,6 +40,8 @@ export const WaitlistForm = ({
   const phoneEntered = Boolean(phone && phone.trim().length > 0);
 
   const onSubmit = async (values: WaitlistPayload) => {
+    setSubmitError(null);
+
     try {
       await submitWaitlist({
         ...values,
@@ -48,11 +49,9 @@ export const WaitlistForm = ({
       });
       setSubmitted(true);
     } catch (err) {
-      toast({
-        title: "Something went wrong",
-        description: "Please try again in a moment.",
-        variant: "destructive",
-      });
+      setSubmitError(
+        err instanceof Error ? err.message : "Please try again in a moment.",
+      );
     }
   };
 
@@ -91,7 +90,6 @@ export const WaitlistForm = ({
       noValidate
     >
       <div className="space-y-4">
-        {/* Email */}
         <div className="space-y-1.5">
           <label
             htmlFor={`${formId}-email`}
@@ -114,7 +112,6 @@ export const WaitlistForm = ({
           )}
         </div>
 
-        {/* Phone */}
         <div className="space-y-1.5">
           <label
             htmlFor={`${formId}-phone`}
@@ -140,7 +137,17 @@ export const WaitlistForm = ({
           )}
         </div>
 
-        {/* SMS consent */}
+        <div className="sr-only" aria-hidden="true">
+          <label htmlFor={`${formId}-website`}>Website</label>
+          <Input
+            id={`${formId}-website`}
+            type="text"
+            tabIndex={-1}
+            autoComplete="off"
+            {...register("website")}
+          />
+        </div>
+
         <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3.5">
           <Checkbox
             id={`${formId}-sms`}
@@ -164,8 +171,12 @@ export const WaitlistForm = ({
             {errors.smsConsent.message}
           </p>
         )}
+        {submitError && (
+          <p className="-mt-1 text-xs text-destructive" role="alert">
+            {submitError}
+          </p>
+        )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}
@@ -174,7 +185,7 @@ export const WaitlistForm = ({
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Joining…
+              Joining...
             </>
           ) : (
             <>
